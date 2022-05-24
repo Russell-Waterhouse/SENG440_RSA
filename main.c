@@ -1,6 +1,7 @@
 #include <stdio.h>
+#include "RSA_test.h"
 
 int main() {
-    printf("Hello, World!\n");
+    test();
     return 0;
 }
