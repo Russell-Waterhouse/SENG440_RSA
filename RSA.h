@@ -2,7 +2,7 @@
 
 #define rsa
 
-void encrypt();
+unsigned int encrypt(int input);
 void decrypt();
 
 
