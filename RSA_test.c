@@ -2,7 +2,6 @@
 // Created by russellw on 24/05/22.
 //
 #include <stdio.h>
-#include <string.h>
 #include "RSA.h"
 
 int assert(int condition, char* test_name);
@@ -13,10 +12,17 @@ int trivial_encrypt() {
     return failed_tests;
 }
 
+int trivial_decrypt() {
+    int failed_tests = 0;
+    failed_tests = failed_tests + assert(decrypt(855) == 123, "trivial decrypt from slides");
+    return failed_tests;
+}
+
 void test() {
     printf("Starting tests for RSA\n\n");
     int failed_tests = 0;
     failed_tests = failed_tests + trivial_encrypt();
+    failed_tests = failed_tests + trivial_decrypt();
     printf("Tests completed for RSA with %d failed tests\n\n", failed_tests);
 }
 
