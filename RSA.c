@@ -1,51 +1,37 @@
 #include <stdio.h>
 #include <openssl/bn.h>
 
-/*
- * Right now, it just does the example from the slides
- */
-unsigned int encrypt(unsigned int input){
-    BN_CTX * ctx = BN_CTX_new();
-    BIGNUM * plaintext = BN_new();
-    //done with strings because that's what bignum library offers
-    char text[20];
-    sprintf(text, "%d", input);
-    BN_dec2bn(&plaintext, text);
+unsigned long long mul(unsigned long long n1, unsigned long long n2) {
+    return n1 * n2;
+//    TODO: vulnerable to integer overflow
+}
 
-    BIGNUM * p = BN_new();
-    BN_dec2bn(&p, "61");
-
-    BIGNUM * q = BN_new();
-    BN_dec2bn(&q, "53");
-
-    BIGNUM * pq = BN_new();
-    BN_mul(pq, p, q, ctx);
-
-    BIGNUM * e = BN_new();
-    BN_dec2bn(&e, "17");
-
-    BIGNUM * cyphertext = BN_new();
-//    cyphertext = plaintext^e mod pq
-    BN_mod_exp(cyphertext, plaintext, e, pq, ctx);
-
-    //done with strings because that's what bignum library offers
-    char * cypher_str = BN_bn2dec(cyphertext);
-    int cypher_text = atoi(cypher_str);
-    BN_CTX_free(ctx);
-    BN_free(p);
-    BN_free(q);
-    BN_free(pq);
-    BN_free(e);
-    BN_free(cyphertext);
-    BN_free(plaintext);
-    OPENSSL_free(cypher_str);
-    return (unsigned int)cypher_text;
+//    cyphertext = a^e mod pq
+unsigned long long mod_exp(unsigned long long a, unsigned long long e, unsigned long long m) {
+//    TODO: do this right, this is just a quick hack
+    unsigned long long result = 1;
+    for (int i = 0; i < e; i++) {
+        result = (result * a) % m;
+    }
+    return result % m;
 }
 
 /*
  * Right now, it just does the example from the slides
  */
-unsigned int decrypt(unsigned int input){
+unsigned int encrypt(unsigned long long input){
+    unsigned long long p = 61;
+    unsigned long long q = 53;
+    unsigned long long pq = mul(p, q);
+    unsigned long long e = 17;
+    unsigned long long cypher_text = mod_exp(input, e, pq);
+    return cypher_text;
+}
+
+/*
+ * Right now, it just does the example from the slides
+ */
+unsigned long long decrypt(unsigned long long input){
     BN_CTX * ctx = BN_CTX_new();
 
     BIGNUM * cyphertext = BN_new();

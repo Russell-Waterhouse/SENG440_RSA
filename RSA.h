@@ -2,7 +2,7 @@
 
 #define rsa
 
-unsigned int encrypt(unsigned int input);
-unsigned int decrypt(unsigned int input);
+unsigned long long encrypt(unsigned long long input);
+unsigned long long decrypt(unsigned long long input);
 
 #endif
