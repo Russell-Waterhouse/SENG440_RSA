@@ -1,11 +1,14 @@
+#include <stdint.h>
+
 /**
  * @brief Simple multiplication - x*y
  * 
  * @param x First operand
  * @param y Second operand
- * @return unsigned long long 
+ * @return unit64_t 
  */
-unsigned long long mul(unsigned long long x, unsigned long long y) {
+uint64_t mul(uint64_t x, uint64_t y) {
+    uint64_t z = 0;
     return x * y;
 //    TODO: vulnerable to integer overflow
 }
@@ -17,18 +20,18 @@ unsigned long long mul(unsigned long long x, unsigned long long y) {
  * @param Y Second operand
  * @param M Modulus
  * @param m Bitwidth of M
- * @return unsigned long long 
+ * @return uint64_t 
  */
-unsigned long long mod_mul(unsigned long long X, unsigned long long Y,
-                            unsigned long long M, unsigned long long m) {
+uint64_t mod_mul(uint64_t X, uint64_t Y,
+                            uint64_t M, uint64_t m) {
     // A lot of these could probably be smaller ints
-    unsigned long long Xi;
-    unsigned long long Xi_Y;
-    unsigned long long Y0;
-    unsigned long long Z;
-    unsigned long long Z0;
-    unsigned long long eta;
-    unsigned long long eta_M;
+    uint64_t Xi;
+    uint64_t Xi_Y;
+    uint64_t Y0;
+    uint64_t Z;
+    uint64_t Z0;
+    uint64_t eta;
+    uint64_t eta_M;
 
     for ( int i=0; i<m; i++ ) {
         Xi = (X >> i) & 1;
@@ -50,11 +53,11 @@ unsigned long long mod_mul(unsigned long long X, unsigned long long Y,
  * @param a Plaintext
  * @param e Public Exponent
  * @param m Modulus (PQ)
- * @return unsigned long long 
+ * @return uint64_t 
  */
-unsigned long long mod_exp(unsigned long long a, unsigned long long e, unsigned long long m) {
+uint64_t mod_exp(uint64_t a, uint64_t e, uint64_t m) {
 //    TODO: do this right, this is just a quick hack
-    unsigned long long result = 1;
+    uint64_t result = 1;
     for (int i = 0; i < e; i++) {
         result = (result * a) % m;
     }
@@ -67,12 +70,12 @@ unsigned long long mod_exp(unsigned long long a, unsigned long long e, unsigned 
  * @param input Plaintext
  * @return unsigned int 
  */
-unsigned int encrypt(unsigned long long input){
-    unsigned long long p = 61;
-    unsigned long long q = 53;
-    unsigned long long pq = mul(p, q);
-    unsigned long long e = 17;
-    unsigned long long cypher_text = mod_exp(input, e, pq);
+uint64_t encrypt(uint64_t input){
+    uint64_t p = 61;
+    uint64_t q = 53;
+    uint64_t pq = mul(p, q);
+    uint64_t e = 17;
+    uint64_t cypher_text = mod_exp(input, e, pq);
     return cypher_text;
 }
 
@@ -80,15 +83,15 @@ unsigned int encrypt(unsigned long long input){
  * @brief RSA Decryption - Right now, it just does the example from the slides
  * 
  * @param input Cypertext
- * @return unsigned long long 
+ * @return uint64_t 
  */
-unsigned long long decrypt(unsigned long long input){
-    unsigned long long p = 61;
-    unsigned long long q = 53;
-    unsigned long long pq = mul(p, q);
+uint64_t decrypt(uint64_t input){
+    uint64_t p = 61;
+    uint64_t q = 53;
+    uint64_t pq = mul(p, q);
 //    n = (p-1)*(q-1)
     //calculates d such that e^d mod n == 1
-    unsigned long long d = 2753;
-    unsigned long long plain_text = mod_exp(input, d, pq);
+    uint64_t d = 2753;
+    uint64_t plain_text = mod_exp(input, d, pq);
     return (unsigned int)plain_text;
 }
