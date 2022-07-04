@@ -7,8 +7,7 @@
  * @param y Second operand
  * @return unit64_t 
  */
-uint64_t mul(uint64_t x, uint64_t y) {
-    uint64_t z = 0;
+static inline uint64_t mul(uint64_t x, uint64_t y) {
     return x * y;
 //    TODO: vulnerable to integer overflow
 }
@@ -22,7 +21,7 @@ uint64_t mul(uint64_t x, uint64_t y) {
  * @param m Bitwidth of M
  * @return uint64_t 
  */
-uint64_t mod_mul(uint64_t X, uint64_t Y,
+static inline uint64_t mod_mul(uint64_t X, uint64_t Y,
                             uint64_t M, uint64_t m) {
     // A lot of these could probably be smaller ints
     uint64_t Xi;
@@ -55,7 +54,7 @@ uint64_t mod_mul(uint64_t X, uint64_t Y,
  * @param m Modulus (PQ)
  * @return uint64_t 
  */
-uint64_t mod_exp(uint64_t a, uint64_t e, uint64_t m) {
+static inline uint64_t mod_exp(uint64_t a, uint64_t e, uint64_t m) {
 //    TODO: do this right, this is just a quick hack
     uint64_t result = 1;
     for (int i = 0; i < e; i++) {
