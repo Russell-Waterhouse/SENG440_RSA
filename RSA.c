@@ -70,7 +70,7 @@ uint64_t mod_exp(uint64_t a, uint64_t e, uint64_t m) {
  * @param input Plaintext
  * @return unsigned int 
  */
-unsigned int encrypt(uint64_t input){
+uint64_t encrypt(uint64_t input){
     uint64_t p = 61;
     uint64_t q = 53;
     uint64_t pq = mul(p, q);
