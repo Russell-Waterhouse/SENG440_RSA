@@ -32,7 +32,7 @@ static inline uint64_t mod_mul(uint64_t X, uint64_t Y,
     uint64_t eta;
     uint64_t eta_M;
 
-    for ( int i=0; i<m; i++ ) {
+    for ( register int i=0; i<m; i++ ) {
         Xi = (X >> i) & 1;
         Z0 = Z & 1;
         eta = Z0 ^ (Xi & Y0);
@@ -57,7 +57,7 @@ static inline uint64_t mod_mul(uint64_t X, uint64_t Y,
 static inline uint64_t mod_exp(uint64_t a, uint64_t e, uint64_t m) {
 //    TODO: do this right, this is just a quick hack
     uint64_t result = 1;
-    for (int i = 0; i < e; i++) {
+    for (register int i = 0; i < e; i++) {
         result = (result * a) % m;
     }
     return result % m;
@@ -92,5 +92,5 @@ uint64_t decrypt(uint64_t input){
     //calculates d such that e^d mod n == 1
     uint64_t d = 2753;
     uint64_t plain_text = mod_exp(input, d, pq);
-    return (unsigned int)plain_text;
+    return plain_text;
 }
