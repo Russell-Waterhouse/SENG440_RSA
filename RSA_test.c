@@ -40,7 +40,7 @@ int property_test() {
     return failed_tests;
 }
 
-void test() {
+void test(int measure_performance) {
     printf("Starting tests for RSA\n\n");
     int failed_tests = 0;
     failed_tests += trivial_encrypt();
