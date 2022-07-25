@@ -8,7 +8,7 @@
 
 // Prototypes
 int assert(int condition, char* test_name);
-void print_performance(int start, int end);
+void measure_performance();
 
 int trivial_encrypt() {
     int failed_tests = 0;
@@ -43,29 +43,43 @@ int property_test() {
     return failed_tests;
 }
 
-void test(int measure_performance) {
-    printf("\nStarting tests for RSA\n\n");
-    int failed_tests = 0;
-    int start = 0;
-    int end = 0;
+void test(int performance_flag) {
+    printf("\n+ Starting tests for RSA\n\n");
 
-    start = clock();
+    int failed_tests = 0;
+
     failed_tests += trivial_encrypt();
     failed_tests += trivial_decrypt();
     failed_tests += property_test();
-    end = clock();
+
 
     printf("Tests completed for RSA with %d failed tests\n\n", failed_tests);
     
-    if (measure_performance)
-        print_performance(start, end);
+    if (performance_flag)
+        measure_performance();
 }
 
-void print_performance(int start, int end) {
-    int total_ticks = end - start;
-    printf("========================================\n");
-    printf("Total Ticks: %.12d (microseconds)\n", total_ticks);
-    printf("========================================\n\n");
+void measure_performance() {
+    int start = 0;
+    int end = 0;
+    int total = 0;
+    int average = 0;
+    int num_trials = 100;
+
+    printf("+ Starting performance for RSA\n\n");
+    
+    for ( int i; i < num_trials; i++ ) {
+        start = clock();
+        trivial_encrypt();
+        trivial_decrypt();
+        end = clock(); 
+        total += ( end - start );
+    }
+    average = total / num_trials;
+
+    printf("Results:\n");
+    printf("\tNumber of trials = %d\n", num_trials);
+    printf("\tAverage Ticks: %d (microseconds)\n\n", average);
 }
 
 int assert(int condition, char* test_name){
