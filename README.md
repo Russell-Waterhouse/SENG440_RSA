@@ -33,3 +33,7 @@ cmake --build .
 ```
 ./RSA
 ```
+6. run the project with performance measurements
+```
+./RSA -p
+```
