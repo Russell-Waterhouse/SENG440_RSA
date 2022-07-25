@@ -60,26 +60,27 @@ void test(int performance_flag) {
 }
 
 void measure_performance() {
-    int start = 0;
-    int end = 0;
-    int total = 0;
-    int average = 0;
-    int num_trials = 100;
+    uint64_t start = 0;
+    uint64_t end = 0;
+    uint64_t total = 0;
+    uint64_t average = 0;
+    uint64_t num_trials = 10000;
 
     printf("+ Starting performance for RSA\n\n");
     
-    for ( int i; i < num_trials; i++ ) {
-        start = clock();
+    start = clock();
+    for ( int i=0; i < num_trials; i++ ) {
         trivial_encrypt();
         trivial_decrypt();
-        end = clock(); 
-        total += ( end - start );
     }
+    end = clock(); 
+
+    total = end - start;
     average = total / num_trials;
 
     printf("Results:\n");
-    printf("\tNumber of trials = %d\n", num_trials);
-    printf("\tAverage Ticks: %d (microseconds)\n\n", average);
+    printf("\tNumber of trials = %ld\n", num_trials);
+    printf("\tAverage Ticks: %ld (microseconds)\n\n", average);
 }
 
 int assert(int condition, char* test_name){
