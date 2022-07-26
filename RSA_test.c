@@ -125,5 +125,7 @@ void measure_performance() {
     printf("Results:\n");
     // printf("\tClocks per second = %ld\n", CLOCKS_PER_SEC);
     printf("\tNumber of trials  = %d\n", NUM_TRIALS);
-    printf("\tImproved by       = %.0f cycles\n\n", result);
+    printf("\tImproved by       = %.0f cycles", result);
+    result = ( result / average1) * 100;
+    printf(", [ %.1f%% ]\n\n", result);
 }
