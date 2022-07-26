@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#define NUM_TRIALS 1000
+
 // Prototypes
 int assert(int condition, char* test_name);
 void measure_performance();
@@ -90,38 +92,37 @@ void measure_performance() {
     uint64_t result = 0;
     uint64_t average1 = 0;
     uint64_t average2 = 0;
-    uint64_t num_trials = 100000;
 
     printf("+ Starting performance evaluation for RSA\n\n");
     printf("Pure Software Implementation:\n");
 
     start = clock();
-    for ( int i=0; i < num_trials; i++ ) {
+    for ( int i=0; i < NUM_TRIALS; i++ ) {
         initial_trivial_encrypt();
         initial_trivial_decrypt();
     }
     end = clock(); 
     total = end - start;
-    average1 = total / num_trials;
+    average1 = total / NUM_TRIALS;
 
     printf("\tAverage Ticks: %ld cycles\n\n", average1);
     printf("Optimized Implementation:\n");
 
     start = clock();
-    for ( int i=0; i < num_trials; i++ ) {
+    for ( int i=0; i < NUM_TRIALS; i++ ) {
         trivial_encrypt();
         trivial_decrypt();
     }
     end = clock(); 
     total = end - start;
-    average2 = total / num_trials;
+    average2 = total / NUM_TRIALS;
 
-    result = average2- average2;
+    result = average1 - average2;
     if ( result < 0 )
         result = 0;
 
     printf("\tAverage Ticks: %ld cycles\n\n", average2);
     printf("Results:\n");
-    printf("\tNumber of trials = %ld\n", num_trials);
+    printf("\tNumber of trials = %d\n", NUM_TRIALS);
     printf("\tImproved by %ld cycles\n\n", (result));
 }
