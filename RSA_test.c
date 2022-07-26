@@ -86,12 +86,12 @@ int assert(int condition, char* test_name){
 }
 
 void measure_performance() {
-    uint64_t start = 0;
-    uint64_t end = 0;
-    uint64_t total = 0;
-    uint64_t result = 0;
-    uint64_t average1 = 0;
-    uint64_t average2 = 0;
+    float start = 0;
+    float end = 0;
+    float total = 0;
+    float result = 0;
+    float average1 = 0;
+    float average2 = 0;
 
     printf("+ Starting performance evaluation for RSA\n\n");
     printf("Pure Software Implementation:\n");
@@ -105,7 +105,7 @@ void measure_performance() {
     total = end - start;
     average1 = total / NUM_TRIALS;
 
-    printf("\tAverage Ticks: %ld cycles\n\n", average1);
+    printf("\tAverage Ticks: %.2f cycles\n\n", average1);
     printf("Optimized Implementation:\n");
 
     start = clock();
@@ -121,8 +121,9 @@ void measure_performance() {
     if ( result < 0 )
         result = 0;
 
-    printf("\tAverage Ticks: %ld cycles\n\n", average2);
+    printf("\tAverage Ticks: %.2f cycles\n\n", average2);
     printf("Results:\n");
-    printf("\tNumber of trials = %d\n", NUM_TRIALS);
-    printf("\tImproved by %ld cycles\n\n", (result));
+    // printf("\tClocks per second = %ld\n", CLOCKS_PER_SEC);
+    printf("\tNumber of trials  = %d\n", NUM_TRIALS);
+    printf("\tImproved by       = %.0f cycles\n\n", result);
 }
