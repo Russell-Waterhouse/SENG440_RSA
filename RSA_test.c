@@ -4,8 +4,11 @@
 #include <stdio.h>
 #include "RSA.h"
 #include <stdlib.h>
+#include <time.h>
 
+// Prototypes
 int assert(int condition, char* test_name);
+void measure_performance();
 
 int trivial_encrypt() {
     int failed_tests = 0;
@@ -40,13 +43,44 @@ int property_test() {
     return failed_tests;
 }
 
-void test() {
-    printf("Starting tests for RSA\n\n");
+void test(int performance_flag) {
+    printf("\n+ Starting tests for RSA\n\n");
+
     int failed_tests = 0;
+
     failed_tests += trivial_encrypt();
     failed_tests += trivial_decrypt();
     failed_tests += property_test();
+
+
     printf("Tests completed for RSA with %d failed tests\n\n", failed_tests);
+    
+    if (performance_flag)
+        measure_performance();
+}
+
+void measure_performance() {
+    uint64_t start = 0;
+    uint64_t end = 0;
+    uint64_t total = 0;
+    uint64_t average = 0;
+    uint64_t num_trials = 10000;
+
+    printf("+ Starting performance for RSA\n\n");
+    
+    start = clock();
+    for ( int i=0; i < num_trials; i++ ) {
+        trivial_encrypt();
+        trivial_decrypt();
+    }
+    end = clock(); 
+
+    total = end - start;
+    average = total / num_trials;
+
+    printf("Results:\n");
+    printf("\tNumber of trials = %ld\n", num_trials);
+    printf("\tAverage Ticks: %ld (microseconds)\n\n", average);
 }
 
 int assert(int condition, char* test_name){
