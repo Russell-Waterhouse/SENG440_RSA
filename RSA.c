@@ -26,7 +26,7 @@ static inline uint64_t mul(uint64_t x, uint64_t y) {
  * @return uint64_t 
  */
 static inline uint64_t mod_mul(uint64_t X, uint64_t Y,
-                            uint64_t M, uint64_t m) {
+                            uint64_t M) {
     // A lot of these could probably be smaller ints
     uint64_t Xi;
     uint64_t Xi_Y;
@@ -35,8 +35,16 @@ static inline uint64_t mod_mul(uint64_t X, uint64_t Y,
     uint64_t Z0;
     uint64_t eta;
     uint64_t eta_M;
+    int m = 0;
 
-    for ( register int i=0; i<m; i++ ) {
+    // Determine m, bitwidth of M
+    uint64_t temp = m;
+    while( temp > 0 ){
+        m++;
+        temp >>= 1;
+    }
+
+    for ( register int i=0; i < m; i++ ) {
         Xi = (X >> i) & 1;
         Z0 = Z & 1;
         eta = Z0 ^ (Xi & Y0);
@@ -121,11 +129,10 @@ uint64_t initial_mul(uint64_t x, uint64_t y) {
  * 
  * @param X First operand
  * @param Y Second operand
- * @param M Modulus
- * @param m Bitwidth of M
+ * @param M Modulus (with bitwidth m)
  * @return uint64_t 
  */
-uint64_t initial_mod_mul(uint64_t X, uint64_t Y, uint64_t M, uint64_t m) {
+uint64_t initial_mod_mul(uint64_t X, uint64_t Y, uint64_t M) {
     
     uint64_t Xi;
     uint64_t Xi_Y;
@@ -134,8 +141,16 @@ uint64_t initial_mod_mul(uint64_t X, uint64_t Y, uint64_t M, uint64_t m) {
     uint64_t Z0;
     uint64_t eta;
     uint64_t eta_M;
+    uint64_t m = 0;
 
-    for ( int i=0; i<m; i++ ) {
+    // Determine m, bitwidth of M
+    uint64_t temp = m;
+    while( temp > 0 ){
+        m++;
+        temp >>= 1;
+    }
+
+    for ( int i=0; i < m; i++ ) {
         Xi = (X >> i) & 1;
         Z0 = Z & 1;
         eta = Z0 ^ (Xi & Y0);
