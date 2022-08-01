@@ -41,22 +41,16 @@ int trivial_decrypt() {
     return failed_tests;
 }
 
-int file_encrypt() {
-    FILE * infile = fopen(TEST_ENCRYPT_FILE_NAME, "r");
-    FILE *outfile = fopen(TEST_ENCRYPT_RESULT_FILE_NAME, "wb");
-    encrypt_file(infile, outfile);
-    fclose(infile);
-    fclose(outfile);
-    return 0;
+int optimized_trivial_encrypt() {
+    int failed_tests = 0;
+    failed_tests += assert(optimized_encrypt(123) == 855, "trivial encrypt from slides");
+    return failed_tests;
 }
 
-int file_decrypt() {
-    FILE * infile = fopen(TEST_DECRYPT_FILE_NAME, "r");
-    FILE *outfile = fopen(TEST_DECRYPT_RESULT_FILE_NAME, "wb");
-    decrypt_file(infile, outfile);
-    fclose(infile);
-    fclose(outfile);
-    return 0;
+int optimized_trivial_decrypt() {
+    int failed_tests = 0;
+    failed_tests += assert(optimized_decrypt(855) == 123, "trivial decrypt from slides");
+    return failed_tests;
 }
 
 int initial_file_encrypt() {
@@ -77,6 +71,42 @@ int initial_file_decrypt() {
     return 0;
 }
 
+int file_encrypt() {
+    FILE * infile = fopen(TEST_ENCRYPT_FILE_NAME, "r");
+    FILE *outfile = fopen(TEST_ENCRYPT_RESULT_FILE_NAME, "wb");
+    encrypt_file(infile, outfile);
+    fclose(infile);
+    fclose(outfile);
+    return 0;
+}
+
+int file_decrypt() {
+    FILE * infile = fopen(TEST_DECRYPT_FILE_NAME, "r");
+    FILE *outfile = fopen(TEST_DECRYPT_RESULT_FILE_NAME, "wb");
+    decrypt_file(infile, outfile);
+    fclose(infile);
+    fclose(outfile);
+    return 0;
+}
+
+int optimized_file_encrypt() {
+    FILE * infile = fopen(TEST_ENCRYPT_FILE_NAME, "r");
+    FILE *outfile = fopen(TEST_ENCRYPT_RESULT_FILE_NAME, "wb");
+    optimized_encrypt_file(infile, outfile);
+    fclose(infile);
+    fclose(outfile);
+    return 0;
+}
+
+int optimized_file_decrypt() {
+    FILE * infile = fopen(TEST_DECRYPT_FILE_NAME, "r");
+    FILE *outfile = fopen(TEST_DECRYPT_RESULT_FILE_NAME, "wb");
+    optimized_decrypt_file(infile, outfile);
+    fclose(infile);
+    fclose(outfile);
+    return 0;
+}
+
 int property_test() {
     int failed_tests = 0;
     int i = 0;
@@ -85,8 +115,8 @@ int property_test() {
     unsigned int decyphered_text;
     for(i=0; i<=100; i++) {
         input = rand();
-//        This is just there because the current implementation has pq=3233
-//        input cannot be greater than 3233
+        // This is just there because the current implementation has pq=3233
+        // input cannot be greater than 3233
         input = input % 3233;
         cyphertext = encrypt(input);
         decyphered_text = decrypt(cyphertext);
@@ -107,8 +137,9 @@ void test(int performance_flag) {
     failed_tests += initial_trivial_decrypt();
     failed_tests += trivial_encrypt();
     failed_tests += trivial_decrypt();
-    // failed_tests += property_test();
-
+    failed_tests += optimized_trivial_encrypt();
+    failed_tests += optimized_trivial_decrypt();
+    failed_tests += property_test();
 
     printf("\tTests completed for RSA with %d failed tests\n\n", failed_tests);
     
@@ -126,21 +157,24 @@ int assert(int condition, char* test_name){
     }
 }
 
+
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cppcoreguidelines-narrowing-conversions"
 void measure_performance() {
-    float start = 0;
-    float end = 0;
-    float total = 0;
-    float result = 0;
-    float file_result = 0;
-    float average1 = 0;
-    float average2 = 0;
+    int     i = 0;
+    float   start = 0;
+    float   end = 0;
+    float   total = 0;
+    float   result = 0;
+    float   file_result = 0;
+    float   average1 = 0;
+    float   average2 = 0;
+    float   average3 = 0;
 
-    printf("+ Starting performance evaluation for RSA\n\n");
-    printf("Pure Software Implementation on constant input:\n");
+    // Begin trivial tests
+    printf("+ Starting trivial performance evaluation\n\n");
     start = clock();
-    for ( int i=0; i < NUM_TRIALS; i++ ) {
+    for ( i=0; i < NUM_TRIALS; i++ ) {
         initial_trivial_encrypt();
         initial_trivial_decrypt();
     }
@@ -148,58 +182,109 @@ void measure_performance() {
     total = end - start;
     average1 = total / NUM_TRIALS;
 
-    printf("\tAverage Ticks: %.2f cycles\n\n", average1);
-    printf("Optimized Implementation on constant input:\n");
     start = clock();
-    for ( int i=0; i < NUM_TRIALS; i++ ) {
+    for ( i=0; i < NUM_TRIALS; i++ ) {
         trivial_encrypt();
         trivial_decrypt();
     }
     end = clock(); 
     total = end - start;
     average2 = total / NUM_TRIALS;
-    result = average1 - average2;
-    printf("\tAverage Ticks: %.2f cycles\n\n", average2);
 
-    printf("Constant Input Results:\n");
-    printf("\tNumber of trials  = %d\n", NUM_TRIALS);
-    printf("\tImproved by       = %.0f cycles", result);
+    start = clock();
+    for ( int i=0; i < NUM_TRIALS; i++ ) {
+        optimized_trivial_encrypt();
+        optimized_trivial_decrypt();
+    }
+    end = clock(); 
+    total = end - start;
+    average3 = total / NUM_TRIALS;
+
+    printf("\tAverage Ticks after %d trials:\n", NUM_TRIALS);
+    printf("\t\tPure-software       = %.1f cycles\n", average1);
+    printf("\t\tUnoptimized MMM     = %.1f cycles\n", average2);
+    printf("\t\tOptimized MMM       = %.1f cycles\n\n", average3);
+
+    printf("\tImprovements Results:\n");
+    result = average1 - average2;
+    printf("\t\tPure -> Unopt.      = %.0f cycles", result);
+    result = ( result / average1) * 100;
+    printf(", [ %.1f%% ]\n", result);
+
+    result = average2 - average3;
+    printf("\t\tUnopt. -> Optimized = %.0f cycles", result);
+    result = ( result / average2) * 100;
+    printf(", [ %.1f%% ]\n", result);
+
+    result = average1 - average3;
+    printf("\t\tPure -> Optimized   = %.0f cycles", result);
     result = ( result / average1) * 100;
     printf(", [ %.1f%% ]\n\n", result);
+    // End trivial tests
 
-    printf("+ Starting performance evaluation for File Encyption/Decryption\n\n");
-    printf("Unoptimized Implementation on File input:\n");
 
-    start = clock();
-    for ( int i=0; i < NUM_TRIALS_FILE_INPUT; i++ ) {
-        initial_file_encrypt();
-        initial_file_decrypt();
-    }
-    end = clock();
-    total = end - start;
-    average1 = total / NUM_TRIALS_FILE_INPUT;
+    // printf("Pure Software Implementation on constant input:\n");
+    // start = clock();
+    // for ( int i=0; i < NUM_TRIALS; i++ ) {
+    //     initial_trivial_encrypt();
+    //     initial_trivial_decrypt();
+    // }
+    // end = clock(); 
+    // total = end - start;
+    // average1 = total / NUM_TRIALS;
 
-    printf("\tAverage Ticks: %.2f cycles\n\n", average1);
+    // printf("\tAverage Ticks: %.2f cycles\n\n", average1);
+    // printf("Optimized Implementation on constant input:\n");
+    // start = clock();
+    // for ( int i=0; i < NUM_TRIALS; i++ ) {
+    //     trivial_encrypt();
+    //     trivial_decrypt();
+    // }
+    // end = clock(); 
+    // total = end - start;
+    // average2 = total / NUM_TRIALS;
+    // result = average1 - average2;
+    // printf("\tAverage Ticks: %.2f cycles\n\n", average2);
 
-    printf("Optimized Implementation on File input:\n");
+    // printf("Constant Input Results:\n");
+    // printf("\tNumber of trials  = %d\n", NUM_TRIALS);
+    // printf("\tImproved by       = %.0f cycles", result);
+    // result = ( result / average1) * 100;
+    // printf(", [ %.1f%% ]\n\n", result);
 
-    start = clock();
-    for ( int i=0; i < NUM_TRIALS_FILE_INPUT; i++ ) {
-        file_encrypt();
-        file_decrypt();
-    }
-    end = clock();
-    total = end - start;
-    average2 = total / NUM_TRIALS_FILE_INPUT;
+    // printf("+ Starting performance evaluation for File Encyption/Decryption\n\n");
+    // printf("Unoptimized Implementation on File input:\n");
 
-    file_result = average1 - average2;
+    // start = clock();
+    // for ( int i=0; i < NUM_TRIALS_FILE_INPUT; i++ ) {
+    //     initial_file_encrypt();
+    //     initial_file_decrypt();
+    // }
+    // end = clock();
+    // total = end - start;
+    // average1 = total / NUM_TRIALS_FILE_INPUT;
 
-    printf("\tAverage Ticks: %.2f cycles\n\n", average2);
+    // printf("\tAverage Ticks: %.2f cycles\n\n", average1);
 
-    printf("File Input Results:\n");
-    printf("\tNumber of trials  = %d\n", NUM_TRIALS_FILE_INPUT);
-    printf("\tImproved by       = %.0f cycles", file_result);
-    file_result = (file_result / average1) * 100;
-    printf(", [ %.1f%% ]\n\n", file_result);
+    // printf("Optimized Implementation on File input:\n");
+
+    // start = clock();
+    // for ( int i=0; i < NUM_TRIALS_FILE_INPUT; i++ ) {
+    //     file_encrypt();
+    //     file_decrypt();
+    // }
+    // end = clock();
+    // total = end - start;
+    // average2 = total / NUM_TRIALS_FILE_INPUT;
+
+    // file_result = average1 - average2;
+
+    // printf("\tAverage Ticks: %.2f cycles\n\n", average2);
+
+    // printf("File Input Results:\n");
+    // printf("\tNumber of trials  = %d\n", NUM_TRIALS_FILE_INPUT);
+    // printf("\tImproved by       = %.0f cycles", file_result);
+    // file_result = (file_result / average1) * 100;
+    // printf(", [ %.1f%% ]\n\n", file_result);
 }
 #pragma clang diagnostic pop
