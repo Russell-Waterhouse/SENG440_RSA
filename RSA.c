@@ -1,4 +1,84 @@
 #include <stdint.h>
+#include <stdio.h>
+#include "RSA.h"
+
+void* encrypt_file(FILE* infile, FILE* outfile) {
+    if (infile == NULL || outfile == NULL) {
+        printf("ERROR: input file or output file is null");
+        return NULL;
+    }
+    uint64_t in_chunk[1];// = NULL;
+    in_chunk[0] = 0;
+    uint64_t out_chunk[1];// = NULL;
+//    size is smaller than buffer size to pad input with leading zeros to prevent overflow
+    size_t size = sizeof(uint8_t);
+    unsigned long result = fread(in_chunk, size, 1, infile);
+    while(result == 1) {
+        * out_chunk = encrypt(*in_chunk);
+        fwrite(out_chunk, sizeof(uint64_t), 1, outfile);
+        result = fread(in_chunk, size, 1, infile);
+    }
+    return NULL;
+}
+
+void* decrypt_file(FILE* infile, FILE* outfile) {
+    if (infile == NULL || outfile == NULL) {
+        printf("ERROR: input file or output file is null");
+        return NULL;
+    }
+    uint64_t in_chunk[1];// = NULL;
+    uint64_t out_chunk[1];// = NULL;
+    size_t size = sizeof(uint64_t);
+    unsigned long result = fread(in_chunk, size, 1, infile);
+    while(result == 1) {
+        * out_chunk = decrypt(*in_chunk);
+//        remove padding
+        * out_chunk << 56;
+        fwrite(out_chunk, sizeof(uint8_t), 1, outfile);
+        result = fread(in_chunk, size, 1, infile);
+    }
+    return NULL;
+}
+
+
+void* initial_encrypt_file(FILE* infile, FILE* outfile) {
+    if (infile == NULL || outfile == NULL) {
+        printf("ERROR: input file or output file is null");
+        return NULL;
+    }
+    uint64_t in_chunk[1];// = NULL;
+    in_chunk[0] = 0;
+    uint64_t out_chunk[1];// = NULL;
+//    size is smaller than buffer size to pad input with leading zeros to prevent overflow
+    size_t size = sizeof(uint8_t);
+    unsigned long result = fread(in_chunk, size, 1, infile);
+    while(result == 1) {
+        * out_chunk = initial_encrypt(*in_chunk);
+        fwrite(out_chunk, sizeof(uint64_t), 1, outfile);
+        result = fread(in_chunk, size, 1, infile);
+    }
+    return NULL;
+}
+
+void* initial_decrypt_file(FILE* infile, FILE* outfile) {
+    if (infile == NULL || outfile == NULL) {
+        printf("ERROR: input file or output file is null");
+        return NULL;
+    }
+    uint64_t in_chunk[1];// = NULL;
+    uint64_t out_chunk[1];// = NULL;
+    size_t size = sizeof(uint64_t);
+    unsigned long result = fread(in_chunk, size, 1, infile);
+    while(result == 1) {
+        * out_chunk = initial_decrypt(*in_chunk);
+//        remove padding
+        * out_chunk << 56;
+        fwrite(out_chunk, sizeof(uint8_t), 1, outfile);
+        result = fread(in_chunk, size, 1, infile);
+    }
+    return NULL;
+}
+
 
 // Hardcoded modulus 
 // p = 61, q = 53
