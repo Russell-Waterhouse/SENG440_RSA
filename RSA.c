@@ -26,10 +26,10 @@ static inline uint64_t optimized_mod_mul(register uint64_t X,
                                             register int m) {
     register int i;
     register int T;
-    int Xi, T0, Y0;
-    int eta;
-    int Xi_Y;
-    int eta_M;
+    register int Xi, T0, Y0;
+    register int eta;
+    register int Xi_Y;
+    register int eta_M;
 
     T = 0;
     Y0 = Y & 1;
