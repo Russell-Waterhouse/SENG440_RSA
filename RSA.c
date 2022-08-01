@@ -17,37 +17,28 @@
  * @param m Bitwidth of M
  * @return uint64_t 
  */
-static inline uint64_t mod_mul(uint64_t X, uint64_t Y,
-                            uint64_t M) {
-    // A lot of these could probably be smaller ints
-    uint64_t    Xi;
-    uint64_t    Xi_Y;
-    uint64_t    Y0;
-    uint64_t    Z;
-    uint64_t    Z0;
-    uint64_t    eta;
-    uint64_t    eta_M;
-    int         m = 0;  // Bitwidth of m
+static inline uint64_t mod_mul(uint64_t X, uint64_t Y, uint64_t M, int m) {
+    int i;
+    int T;
+    int Xi, T0, Y0;
+    int eta;
+    int Xi_Y;
+    int eta_M;
 
-    // Determine m, bitwidth of M
-    uint64_t temp = m;
-    while( temp > 0 ){
-        m++;
-        temp >>= 1;
-    }
-
-    for ( register int i=0; i < m; i++ ) {
+    T = 0;
+    Y0 = Y & 1;
+    for( i=0; i<m; i++) {
         Xi = (X >> i) & 1;
-        Z0 = Z & 1;
-        eta = Z0 ^ (Xi & Y0);
+        T0 = T & 1;
+        eta = T0 ^ (Xi & Y0);
         Xi_Y = Xi ? Y : 0;
         eta_M = eta ? M : 0;
-        Z = (Z + Xi_Y + eta_M) >> 1;
+        T = (T + Xi_Y + eta_M) >> 1;
     }
-    while ( Z >= M ) {
-        Z -= M;
-    }
-    return Z;
+    while ( T >= M)
+        T -= M;
+
+    return T;
 }
 
 /**
@@ -55,16 +46,30 @@ static inline uint64_t mod_mul(uint64_t X, uint64_t Y,
  * 
  * @param a Plaintext
  * @param e Public Exponent
- * @param m Modulus (PQ)
+ * @param M Modulus (PQ)
  * @return uint64_t 
  */
-static inline uint64_t mod_exp(uint64_t a, uint64_t e, uint64_t m) {
-//    TODO: do this right, this is just a quick hack
-    uint64_t result = 1;
-    for (register int i = 0; i < e; i++) {
-        result = (result * a) % m;
+static inline uint64_t mod_exp(uint64_t a, uint64_t e, uint64_t M) {
+    // Determine m, bitwidth of M
+    int m = 0;
+    uint64_t temp = M;
+    while ( temp > 0 ) {
+        m++;
+        temp >>= 1;
     }
-    return result % m;
+    // Calculate R^2, where R=2^m
+    uint64_t R_squared = (1 << (2 * m)) % M;
+    // Calculate Z and P, in preparation for the multiply+square algorithm
+    uint64_t Z = mod_mul(1, R_squared, M, m);
+    uint64_t P = mod_mul(a, R_squared, M, m);
+    for (register int i = 0; i < m; i++) {
+        if ( e & (1 << i) ) {
+            Z = mod_mul(Z, P, M, m);
+        }
+        P = mod_mul(P, P, M, m);
+    }
+    Z = mod_mul(1, Z, M, m);
+    return Z;
 }
 
 /**
@@ -98,47 +103,6 @@ uint64_t decrypt(uint64_t input){
 ////////////////////////////////////////////////////////
 //        Initial Software Implementation             //
 ////////////////////////////////////////////////////////
-
-/**
- * @brief Montgomery Modular Multiplication before Software Optimization
- * improvements. Z=X*Y*R^-1 mod M
- * 
- * @param X First operand
- * @param Y Second operand
- * @param M Modulus (with bitwidth m)
- * @return uint64_t 
- */
-uint64_t initial_mod_mul(uint64_t X, uint64_t Y, uint64_t M) {
-    
-    uint64_t Xi;
-    uint64_t Xi_Y;
-    uint64_t Y0;
-    uint64_t Z;
-    uint64_t Z0;
-    uint64_t eta;
-    uint64_t eta_M;
-    uint64_t m = 0;
-
-    // Determine m, bitwidth of M
-    uint64_t temp = m;
-    while( temp > 0 ){
-        m++;
-        temp >>= 1;
-    }
-
-    for ( int i=0; i < m; i++ ) {
-        Xi = (X >> i) & 1;
-        Z0 = Z & 1;
-        eta = Z0 ^ (Xi & Y0);
-        Xi_Y = Xi ? Y : 0;
-        eta_M = eta ? M : 0;
-        Z = (Z + Xi_Y + eta_M) >> 1;
-    }
-    while ( Z >= M ) {
-        Z -= M;
-    }
-    return Z;
-}
 
 /**
  * @brief Montgomery Modular Exponentiation before Software Optimization
