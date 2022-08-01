@@ -7,6 +7,7 @@
 #include <time.h>
 
 #define NUM_TRIALS 1000
+#define NUM_TRIALS_FILE_INPUT 100
 #define TEST_ENCRYPT_FILE_NAME "../test_input_encrypt.txt"
 #define TEST_DECRYPT_FILE_NAME "../test_input_decrypt.txt.RSA"
 #define TEST_ENCRYPT_RESULT_FILE_NAME "../test_output_encrypt.txt.RSA"
@@ -175,26 +176,26 @@ void measure_performance() {
     printf("Unoptimized Implementation on File input:\n");
 
     start = clock();
-    for ( int i=0; i < NUM_TRIALS; i++ ) {
+    for ( int i=0; i < NUM_TRIALS_FILE_INPUT; i++ ) {
         initial_file_encrypt();
         initial_file_decrypt();
     }
     end = clock();
     total = end - start;
-    average1 = total / NUM_TRIALS;
+    average1 = total / NUM_TRIALS_FILE_INPUT;
 
     printf("\tAverage Ticks: %.2f cycles\n\n", average1);
 
     printf("Optimized Implementation on File input:\n");
 
     start = clock();
-    for ( int i=0; i < NUM_TRIALS; i++ ) {
+    for ( int i=0; i < NUM_TRIALS_FILE_INPUT; i++ ) {
         file_encrypt();
         file_decrypt();
     }
     end = clock();
     total = end - start;
-    average2 = total / NUM_TRIALS;
+    average2 = total / NUM_TRIALS_FILE_INPUT;
 
     file_result = average1 - average2;
 
