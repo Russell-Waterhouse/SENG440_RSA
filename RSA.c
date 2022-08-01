@@ -1,20 +1,12 @@
 #include <stdint.h>
 
+// Hardcoded modulus 
+// p = 61, q = 53
+# define PQ 3233
+
 ////////////////////////////////////////////////////////
 //                 Software Optimized                 //
 ////////////////////////////////////////////////////////
-
-/**
- * @brief Simple multiplication - x*y
- * 
- * @param x First operand
- * @param y Second operand
- * @return unit64_t 
- */
-static inline uint64_t mul(uint64_t x, uint64_t y) {
-    return x * y;
-//    TODO: vulnerable to integer overflow
-}
 
 /**
  * @brief Montgomery Modular Multiplication - Z=X*Y*R^-1 mod M
@@ -28,14 +20,14 @@ static inline uint64_t mul(uint64_t x, uint64_t y) {
 static inline uint64_t mod_mul(uint64_t X, uint64_t Y,
                             uint64_t M) {
     // A lot of these could probably be smaller ints
-    uint64_t Xi;
-    uint64_t Xi_Y;
-    uint64_t Y0;
-    uint64_t Z;
-    uint64_t Z0;
-    uint64_t eta;
-    uint64_t eta_M;
-    int m = 0;
+    uint64_t    Xi;
+    uint64_t    Xi_Y;
+    uint64_t    Y0;
+    uint64_t    Z;
+    uint64_t    Z0;
+    uint64_t    eta;
+    uint64_t    eta_M;
+    int         m = 0;  // Bitwidth of m
 
     // Determine m, bitwidth of M
     uint64_t temp = m;
@@ -82,9 +74,7 @@ static inline uint64_t mod_exp(uint64_t a, uint64_t e, uint64_t m) {
  * @return unsigned int 
  */
 uint64_t encrypt(uint64_t input){
-    uint64_t p = 61;
-    uint64_t q = 53;
-    uint64_t pq = mul(p, q);
+    uint64_t pq = PQ;
     uint64_t e = 17;
     uint64_t cypher_text = mod_exp(input, e, pq);
     return cypher_text;
@@ -97,9 +87,7 @@ uint64_t encrypt(uint64_t input){
  * @return uint64_t 
  */
 uint64_t decrypt(uint64_t input){
-    uint64_t p = 61;
-    uint64_t q = 53;
-    uint64_t pq = mul(p, q);
+    uint64_t pq = PQ;
 //    n = (p-1)*(q-1)
     //calculates d such that e^d mod n == 1
     uint64_t d = 2753;
@@ -110,18 +98,6 @@ uint64_t decrypt(uint64_t input){
 ////////////////////////////////////////////////////////
 //        Initial Software Implementation             //
 ////////////////////////////////////////////////////////
-
-/**
- * @brief Simple multiplication before Software Optimization- x*y
- * 
- * @param x First operand
- * @param y Second operand
- * @return unit64_t 
- */
-uint64_t initial_mul(uint64_t x, uint64_t y) {
-    return x * y;
-//    TODO: vulnerable to integer overflow
-}
 
 /**
  * @brief Montgomery Modular Multiplication before Software Optimization
@@ -188,9 +164,7 @@ uint64_t initial_mod_exp(uint64_t a, uint64_t e, uint64_t m) {
  * @return uint64_t
  */
 uint64_t initial_encrypt(uint64_t input){
-    uint64_t p = 61;
-    uint64_t q = 53;
-    uint64_t pq = initial_mul(p, q);
+    uint64_t pq = PQ;
     uint64_t e = 17;
     uint64_t cypher_text = initial_mod_exp(input, e, pq);
     return cypher_text;
@@ -201,9 +175,7 @@ uint64_t initial_encrypt(uint64_t input){
  * @return uint64_t 
  */
 uint64_t initial_decrypt(uint64_t input){
-    uint64_t p = 61;
-    uint64_t q = 53;
-    uint64_t pq = initial_mul(p, q);
+    uint64_t pq = PQ;
 //    n = (p-1)*(q-1)
     //calculates d such that e^d mod n == 1
     uint64_t d = 2753;
