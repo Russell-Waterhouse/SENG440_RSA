@@ -19,37 +19,37 @@ void measure_performance();
 
 int initial_trivial_encrypt() {
     int failed_tests = 0;
-    failed_tests += assert(initial_encrypt(123) == 855, "trivial encrypt from slides");
+    failed_tests += assert(initial_encrypt(123) == 855, "pure trivial encrypt from slides");
     return failed_tests;
 }
 
 int initial_trivial_decrypt() {
     int failed_tests = 0;
-    failed_tests += assert(initial_decrypt(855) == 123, "trivial decrypt from slides");
+    failed_tests += assert(initial_decrypt(855) == 123, "pure trivial decrypt from slides");
     return failed_tests;
 }
 
 int trivial_encrypt() {
     int failed_tests = 0;
-    failed_tests += assert(encrypt(123) == 855, "trivial encrypt from slides");
+    failed_tests += assert(encrypt(123) == 855, "unoptimized trivial encrypt from slides");
     return failed_tests;
 }
 
 int trivial_decrypt() {
     int failed_tests = 0;
-    failed_tests += assert(decrypt(855) == 123, "trivial decrypt from slides");
+    failed_tests += assert(decrypt(855) == 123, "unoptimized trivial decrypt from slides");
     return failed_tests;
 }
 
 int optimized_trivial_encrypt() {
     int failed_tests = 0;
-    failed_tests += assert(optimized_encrypt(123) == 855, "trivial encrypt from slides");
+    failed_tests += assert(optimized_encrypt(123) == 855, "optimized trivial encrypt from slides");
     return failed_tests;
 }
 
 int optimized_trivial_decrypt() {
     int failed_tests = 0;
-    failed_tests += assert(optimized_decrypt(855) == 123, "trivial decrypt from slides");
+    failed_tests += assert(optimized_decrypt(855) == 123, "optimized trivial decrypt from slides");
     return failed_tests;
 }
 

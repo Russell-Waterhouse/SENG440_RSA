@@ -34,7 +34,7 @@ static inline uint64_t optimized_mod_mul(register uint64_t X,
     T = 0;
     Y0 = Y & 1;
 
-    for( i=m; i!=0; i--) { // Exit condition optimized by decrement
+    for( i=0; i<m; i++) {
         Xi      = (X >> i) & 1;
         T0      = T & 1;
         eta     = T0 ^ (Xi & Y0);
