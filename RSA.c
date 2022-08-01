@@ -17,7 +17,7 @@
  * @param m Bitwidth of M
  * @return uint64_t 
  */
-static inline uint64_t mod_mul(uint64_t X, uint64_t Y, uint64_t M, int m) {
+uint64_t mod_mul(uint64_t X, uint64_t Y, uint64_t M, int m) {
     int i;
     int T;
     int Xi, T0, Y0;
@@ -28,12 +28,12 @@ static inline uint64_t mod_mul(uint64_t X, uint64_t Y, uint64_t M, int m) {
     T = 0;
     Y0 = Y & 1;
     for( i=0; i<m; i++) {
-        Xi = (X >> i) & 1;
-        T0 = T & 1;
-        eta = T0 ^ (Xi & Y0);
-        Xi_Y = Xi ? Y : 0;
-        eta_M = eta ? M : 0;
-        T = (T + Xi_Y + eta_M) >> 1;
+        Xi      = (X >> i) & 1;
+        T0      = T & 1;
+        eta     = T0 ^ (Xi & Y0);
+        Xi_Y    = Xi ? Y : 0;
+        eta_M   = eta ? M : 0;
+        T       = (T + Xi_Y + eta_M) >> 1;
     }
     while ( T >= M)
         T -= M;
@@ -49,7 +49,7 @@ static inline uint64_t mod_mul(uint64_t X, uint64_t Y, uint64_t M, int m) {
  * @param M Modulus (PQ)
  * @return uint64_t 
  */
-static inline uint64_t mod_exp(uint64_t a, uint64_t e, uint64_t M) {
+uint64_t mod_exp(uint64_t a, uint64_t e, uint64_t M) {
     // Determine m, bitwidth of M
     int m = 0;
     uint64_t temp = M;
@@ -62,7 +62,7 @@ static inline uint64_t mod_exp(uint64_t a, uint64_t e, uint64_t M) {
     // Calculate Z and P, in preparation for the multiply+square algorithm
     uint64_t Z = mod_mul(1, R_squared, M, m);
     uint64_t P = mod_mul(a, R_squared, M, m);
-    for (register int i = 0; i < m; i++) {
+    for (int i = 0; i < m; i++) {
         if ( e & (1 << i) ) {
             Z = mod_mul(Z, P, M, m);
         }
