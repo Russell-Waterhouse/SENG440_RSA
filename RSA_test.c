@@ -7,6 +7,10 @@
 #include <time.h>
 
 #define NUM_TRIALS 1000
+#define TEST_ENCRYPT_FILE_NAME "../test_input_encrypt.txt"
+#define TEST_DECRYPT_FILE_NAME "../test_input_decrypt.txt.RSA"
+#define TEST_ENCRYPT_RESULT_FILE_NAME "../test_output_encrypt.txt.RSA"
+#define TEST_DECRYPT_RESULT_FILE_NAME "../test_output_decrypt.txt"
 
 // Prototypes
 int assert(int condition, char* test_name);
@@ -34,6 +38,42 @@ int trivial_decrypt() {
     int failed_tests = 0;
     failed_tests += assert(decrypt(855) == 123, "trivial decrypt from slides");
     return failed_tests;
+}
+
+int file_encrypt() {
+    FILE * infile = fopen(TEST_ENCRYPT_FILE_NAME, "r");
+    FILE *outfile = fopen(TEST_ENCRYPT_RESULT_FILE_NAME, "wb");
+    encrypt_file(infile, outfile);
+    fclose(infile);
+    fclose(outfile);
+    return 0;
+}
+
+int file_decrypt() {
+    FILE * infile = fopen(TEST_DECRYPT_FILE_NAME, "r");
+    FILE *outfile = fopen(TEST_DECRYPT_RESULT_FILE_NAME, "wb");
+    decrypt_file(infile, outfile);
+    fclose(infile);
+    fclose(outfile);
+    return 0;
+}
+
+int initial_file_encrypt() {
+    FILE * infile = fopen(TEST_ENCRYPT_FILE_NAME, "r");
+    FILE *outfile = fopen(TEST_ENCRYPT_RESULT_FILE_NAME, "wb");
+    initial_encrypt_file(infile, outfile);
+    fclose(infile);
+    fclose(outfile);
+    return 0;
+}
+
+int initial_file_decrypt() {
+    FILE * infile = fopen(TEST_DECRYPT_FILE_NAME, "r");
+    FILE *outfile = fopen(TEST_DECRYPT_RESULT_FILE_NAME, "wb");
+    initial_decrypt_file(infile, outfile);
+    fclose(infile);
+    fclose(outfile);
+    return 0;
 }
 
 int property_test() {
@@ -85,16 +125,19 @@ int assert(int condition, char* test_name){
     }
 }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cppcoreguidelines-narrowing-conversions"
 void measure_performance() {
     float start = 0;
     float end = 0;
     float total = 0;
     float result = 0;
+    float file_result = 0;
     float average1 = 0;
     float average2 = 0;
 
     printf("+ Starting performance evaluation for RSA\n\n");
-    printf("Pure Software Implementation:\n");
+    printf("Pure Software Implementation on constant input:\n");
 
     start = clock();
     for ( int i=0; i < NUM_TRIALS; i++ ) {
@@ -106,7 +149,7 @@ void measure_performance() {
     average1 = total / NUM_TRIALS;
 
     printf("\tAverage Ticks: %.2f cycles\n\n", average1);
-    printf("Optimized Implementation:\n");
+    printf("Optimized Implementation on constant input:\n");
 
     start = clock();
     for ( int i=0; i < NUM_TRIALS; i++ ) {
@@ -118,14 +161,50 @@ void measure_performance() {
     average2 = total / NUM_TRIALS;
 
     result = average1 - average2;
-    if ( result < 0 )
-        result = 0;
 
     printf("\tAverage Ticks: %.2f cycles\n\n", average2);
-    printf("Results:\n");
+
+    printf("Constant Input Results:\n");
     // printf("\tClocks per second = %ld\n", CLOCKS_PER_SEC);
     printf("\tNumber of trials  = %d\n", NUM_TRIALS);
     printf("\tImproved by       = %.0f cycles", result);
     result = ( result / average1) * 100;
     printf(", [ %.1f%% ]\n\n", result);
+
+
+    printf("Unoptimized Implementation on File input:\n");
+
+    start = clock();
+    for ( int i=0; i < NUM_TRIALS; i++ ) {
+        initial_file_encrypt();
+        initial_file_decrypt();
+    }
+    end = clock();
+    total = end - start;
+    average1 = total / NUM_TRIALS;
+
+    printf("\tAverage Ticks: %.2f cycles\n\n", average1);
+
+    printf("Optimized Implementation on File input:\n");
+
+    start = clock();
+    for ( int i=0; i < NUM_TRIALS; i++ ) {
+        file_encrypt();
+        file_decrypt();
+    }
+    end = clock();
+    total = end - start;
+    average2 = total / NUM_TRIALS;
+
+    file_result = average1 - average2;
+
+    printf("\tAverage Ticks: %.2f cycles\n\n", average2);
+
+    printf("File Input Results:\n");
+    // printf("\tClocks per second = %ld\n", CLOCKS_PER_SEC);
+    printf("\tNumber of trials  = %d\n", NUM_TRIALS);
+    printf("\tImproved by       = %.0f cycles", file_result);
+    file_result = (file_result / average1) * 100;
+    printf(", [ %.1f%% ]\n\n", file_result);
 }
+#pragma clang diagnostic pop
