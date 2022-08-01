@@ -107,7 +107,7 @@ void test(int performance_flag) {
     failed_tests += initial_trivial_decrypt();
     failed_tests += trivial_encrypt();
     failed_tests += trivial_decrypt();
-    // failed_tests += property_test();
+    failed_tests += property_test();
 
 
     printf("Tests completed for RSA with %d failed tests\n\n", failed_tests);
