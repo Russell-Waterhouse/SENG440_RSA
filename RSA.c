@@ -80,21 +80,13 @@ void* initial_decrypt_file(FILE* infile, FILE* outfile) {
 }
 
 
+// Hardcoded modulus 
+// p = 61, q = 53
+# define PQ 3233
+
 ////////////////////////////////////////////////////////
 //                 Software Optimized                 //
 ////////////////////////////////////////////////////////
-
-/**
- * @brief Simple multiplication - x*y
- * 
- * @param x First operand
- * @param y Second operand
- * @return unit64_t 
- */
-static inline uint64_t mul(uint64_t x, uint64_t y) {
-    return x * y;
-//    TODO: vulnerable to integer overflow
-}
 
 /**
  * @brief Montgomery Modular Multiplication - Z=X*Y*R^-1 mod M
@@ -105,29 +97,28 @@ static inline uint64_t mul(uint64_t x, uint64_t y) {
  * @param m Bitwidth of M
  * @return uint64_t 
  */
-static inline uint64_t mod_mul(uint64_t X, uint64_t Y,
-                            uint64_t M, uint64_t m) {
-    // A lot of these could probably be smaller ints
-    uint64_t Xi;
-    uint64_t Xi_Y;
-    uint64_t Y0;
-    uint64_t Z;
-    uint64_t Z0;
-    uint64_t eta;
-    uint64_t eta_M;
+uint64_t mod_mul(uint64_t X, uint64_t Y, uint64_t M, int m) {
+    int i;
+    int T;
+    int Xi, T0, Y0;
+    int eta;
+    int Xi_Y;
+    int eta_M;
 
-    for ( register int i=0; i<m; i++ ) {
-        Xi = (X >> i) & 1;
-        Z0 = Z & 1;
-        eta = Z0 ^ (Xi & Y0);
-        Xi_Y = Xi ? Y : 0;
-        eta_M = eta ? M : 0;
-        Z = (Z + Xi_Y + eta_M) >> 1;
+    T = 0;
+    Y0 = Y & 1;
+    for( i=0; i<m; i++) {
+        Xi      = (X >> i) & 1;
+        T0      = T & 1;
+        eta     = T0 ^ (Xi & Y0);
+        Xi_Y    = Xi ? Y : 0;
+        eta_M   = eta ? M : 0;
+        T       = (T + Xi_Y + eta_M) >> 1;
     }
-    while ( Z >= M ) {
-        Z -= M;
-    }
-    return Z;
+    while ( T >= M)
+        T -= M;
+
+    return T;
 }
 
 /**
@@ -135,16 +126,30 @@ static inline uint64_t mod_mul(uint64_t X, uint64_t Y,
  * 
  * @param a Plaintext
  * @param e Public Exponent
- * @param m Modulus (PQ)
+ * @param M Modulus (PQ)
  * @return uint64_t 
  */
-static inline uint64_t mod_exp(uint64_t a, uint64_t e, uint64_t m) {
-//    TODO: do this right, this is just a quick hack
-    uint64_t result = 1;
-    for (register int i = 0; i < e; i++) {
-        result = (result * a) % m;
+uint64_t mod_exp(uint64_t a, uint64_t e, uint64_t M) {
+    // Determine m, bitwidth of M
+    int m = 0;
+    uint64_t temp = M;
+    while ( temp > 0 ) {
+        m++;
+        temp >>= 1;
     }
-    return result % m;
+    // Calculate R^2, where R=2^m
+    uint64_t R_squared = (1 << (2 * m)) % M;
+    // Calculate Z and P, in preparation for the multiply+square algorithm
+    uint64_t Z = mod_mul(1, R_squared, M, m);
+    uint64_t P = mod_mul(a, R_squared, M, m);
+    for (int i = 0; i < m; i++) {
+        if ( e & (1 << i) ) {
+            Z = mod_mul(Z, P, M, m);
+        }
+        P = mod_mul(P, P, M, m);
+    }
+    Z = mod_mul(1, Z, M, m);
+    return Z;
 }
 
 /**
@@ -154,9 +159,7 @@ static inline uint64_t mod_exp(uint64_t a, uint64_t e, uint64_t m) {
  * @return unsigned int 
  */
 uint64_t encrypt(uint64_t input){
-    uint64_t p = 61;
-    uint64_t q = 53;
-    uint64_t pq = mul(p, q);
+    uint64_t pq = PQ;
     uint64_t e = 17;
     uint64_t cypher_text = mod_exp(input, e, pq);
     return cypher_text;
@@ -169,9 +172,7 @@ uint64_t encrypt(uint64_t input){
  * @return uint64_t 
  */
 uint64_t decrypt(uint64_t input){
-    uint64_t p = 61;
-    uint64_t q = 53;
-    uint64_t pq = mul(p, q);
+    uint64_t pq = PQ;
 //    n = (p-1)*(q-1)
     //calculates d such that e^d mod n == 1
     uint64_t d = 2753;
@@ -182,52 +183,6 @@ uint64_t decrypt(uint64_t input){
 ////////////////////////////////////////////////////////
 //        Initial Software Implementation             //
 ////////////////////////////////////////////////////////
-
-/**
- * @brief Simple multiplication before Software Optimization- x*y
- * 
- * @param x First operand
- * @param y Second operand
- * @return unit64_t 
- */
-uint64_t initial_mul(uint64_t x, uint64_t y) {
-    return x * y;
-//    TODO: vulnerable to integer overflow
-}
-
-/**
- * @brief Montgomery Modular Multiplication before Software Optimization
- * improvements. Z=X*Y*R^-1 mod M
- * 
- * @param X First operand
- * @param Y Second operand
- * @param M Modulus
- * @param m Bitwidth of M
- * @return uint64_t 
- */
-uint64_t initial_mod_mul(uint64_t X, uint64_t Y, uint64_t M, uint64_t m) {
-    
-    uint64_t Xi;
-    uint64_t Xi_Y;
-    uint64_t Y0;
-    uint64_t Z;
-    uint64_t Z0;
-    uint64_t eta;
-    uint64_t eta_M;
-
-    for ( int i=0; i<m; i++ ) {
-        Xi = (X >> i) & 1;
-        Z0 = Z & 1;
-        eta = Z0 ^ (Xi & Y0);
-        Xi_Y = Xi ? Y : 0;
-        eta_M = eta ? M : 0;
-        Z = (Z + Xi_Y + eta_M) >> 1;
-    }
-    while ( Z >= M ) {
-        Z -= M;
-    }
-    return Z;
-}
 
 /**
  * @brief Montgomery Modular Exponentiation before Software Optimization
@@ -253,9 +208,7 @@ uint64_t initial_mod_exp(uint64_t a, uint64_t e, uint64_t m) {
  * @return uint64_t
  */
 uint64_t initial_encrypt(uint64_t input){
-    uint64_t p = 61;
-    uint64_t q = 53;
-    uint64_t pq = initial_mul(p, q);
+    uint64_t pq = PQ;
     uint64_t e = 17;
     uint64_t cypher_text = initial_mod_exp(input, e, pq);
     return cypher_text;
@@ -266,9 +219,7 @@ uint64_t initial_encrypt(uint64_t input){
  * @return uint64_t 
  */
 uint64_t initial_decrypt(uint64_t input){
-    uint64_t p = 61;
-    uint64_t q = 53;
-    uint64_t pq = initial_mul(p, q);
+    uint64_t pq = PQ;
 //    n = (p-1)*(q-1)
     //calculates d such that e^d mod n == 1
     uint64_t d = 2753;
