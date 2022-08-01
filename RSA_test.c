@@ -110,7 +110,7 @@ void test(int performance_flag) {
     // failed_tests += property_test();
 
 
-    printf("Tests completed for RSA with %d failed tests\n\n", failed_tests);
+    printf("\tTests completed for RSA with %d failed tests\n\n", failed_tests);
     
     if (performance_flag && failed_tests == 0)
         measure_performance();
@@ -139,7 +139,6 @@ void measure_performance() {
 
     printf("+ Starting performance evaluation for RSA\n\n");
     printf("Pure Software Implementation on constant input:\n");
-
     start = clock();
     for ( int i=0; i < NUM_TRIALS; i++ ) {
         initial_trivial_encrypt();
@@ -151,7 +150,6 @@ void measure_performance() {
 
     printf("\tAverage Ticks: %.2f cycles\n\n", average1);
     printf("Optimized Implementation on constant input:\n");
-
     start = clock();
     for ( int i=0; i < NUM_TRIALS; i++ ) {
         trivial_encrypt();
@@ -160,19 +158,16 @@ void measure_performance() {
     end = clock(); 
     total = end - start;
     average2 = total / NUM_TRIALS;
-
     result = average1 - average2;
-
     printf("\tAverage Ticks: %.2f cycles\n\n", average2);
 
     printf("Constant Input Results:\n");
-    // printf("\tClocks per second = %ld\n", CLOCKS_PER_SEC);
     printf("\tNumber of trials  = %d\n", NUM_TRIALS);
     printf("\tImproved by       = %.0f cycles", result);
     result = ( result / average1) * 100;
     printf(", [ %.1f%% ]\n\n", result);
 
-
+    printf("+ Starting performance evaluation for File Encyption/Decryption\n\n");
     printf("Unoptimized Implementation on File input:\n");
 
     start = clock();
@@ -202,7 +197,6 @@ void measure_performance() {
     printf("\tAverage Ticks: %.2f cycles\n\n", average2);
 
     printf("File Input Results:\n");
-    // printf("\tClocks per second = %ld\n", CLOCKS_PER_SEC);
     printf("\tNumber of trials  = %d\n", NUM_TRIALS_FILE_INPUT);
     printf("\tImproved by       = %.0f cycles", file_result);
     file_result = (file_result / average1) * 100;
