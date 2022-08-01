@@ -1,8 +1,7 @@
-//
-// Created by russellw on 24/05/22.
-//
 #include <stdio.h>
 #include "RSA.h"
+#include "RSA_plain_mmm.h"
+#include "RSA_optimized_mmm.h"
 #include <stdlib.h>
 #include <time.h>
 
