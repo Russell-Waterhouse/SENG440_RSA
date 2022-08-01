@@ -20,7 +20,10 @@
  * @param m Bitwidth of M
  * @return uint64_t 
  */
-static inline uint64_t optimized_mod_mul(uint64_t X, uint64_t Y, uint64_t M, int m) {
+static inline uint64_t optimized_mod_mul(register uint64_t X, 
+                                            register uint64_t Y, 
+                                            register uint64_t M, 
+                                            register int m) {
     register int i;
     register int T;
     int Xi, T0, Y0;
@@ -31,7 +34,7 @@ static inline uint64_t optimized_mod_mul(uint64_t X, uint64_t Y, uint64_t M, int
     T = 0;
     Y0 = Y & 1;
 
-    for( i=0; i<m; i++) {
+    for( i=m; i!=0; i--) { // Exit condition optimized by decrement
         Xi      = (X >> i) & 1;
         T0      = T & 1;
         eta     = T0 ^ (Xi & Y0);
@@ -46,7 +49,7 @@ static inline uint64_t optimized_mod_mul(uint64_t X, uint64_t Y, uint64_t M, int
 }
 
 /**
- * @brief Montgomery Modular Exponentiation - a^e mod PQ
+ * @brief Montgomery Modular Exponentiation using optimized MMM - a^e mod PQ
  * 
  * @param a Plaintext
  * @param e Public Exponent
@@ -77,7 +80,7 @@ uint64_t optimized_mod_exp(uint64_t a, uint64_t e, uint64_t M) {
 }
 
 /**
- * @brief RSA Encryption - Right now, it just does the example from the slides
+ * @brief RSA Encryption - Simple example from lecture slides
  * 
  * @param input Plaintext
  * @return unsigned int 
@@ -90,7 +93,7 @@ uint64_t optimized_encrypt(uint64_t input){
 }
 
 /**
- * @brief RSA Decryption - Right now, it just does the example from the slides
+ * @brief RSA Decryption - Simple example from lecture slides
  * 
  * @param input Cypertext
  * @return uint64_t 
@@ -147,7 +150,7 @@ void* optimized_decrypt_file(FILE* infile, FILE* outfile) {
 ////////////////////////////////////////////////////////
 
 /**
- * @brief Montgomery Modular Multiplication - Z=X*Y*R^-1 mod M
+ * @brief Unoptimized Montgomery Modular Multiplication - Z=X*Y*R^-1 mod M
  * 
  * @param X First operand
  * @param Y Second operand
@@ -180,7 +183,7 @@ uint64_t mod_mul(uint64_t X, uint64_t Y, uint64_t M, int m) {
 }
 
 /**
- * @brief Montgomery Modular Exponentiation - a^e mod PQ
+ * @brief Montgomery Modular Exponentiation using unoptimized MMM - a^e mod PQ
  * 
  * @param a Plaintext
  * @param e Public Exponent
@@ -211,7 +214,7 @@ uint64_t mod_exp(uint64_t a, uint64_t e, uint64_t M) {
 }
 
 /**
- * @brief RSA Encryption - Right now, it just does the example from the slides
+ * @brief RSA Encryption - Simple example from lecture slides
  * 
  * @param input Plaintext
  * @return unsigned int 
@@ -224,7 +227,7 @@ uint64_t encrypt(uint64_t input){
 }
 
 /**
- * @brief RSA Decryption - Right now, it just does the example from the slides
+ * @brief RSA Decryption - Simple example from lecture slides
  * 
  * @param input Cypertext
  * @return uint64_t 
