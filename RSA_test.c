@@ -203,7 +203,7 @@ void measure_performance() {
 
     printf("File Input Results:\n");
     // printf("\tClocks per second = %ld\n", CLOCKS_PER_SEC);
-    printf("\tNumber of trials  = %d\n", NUM_TRIALS);
+    printf("\tNumber of trials  = %d\n", NUM_TRIALS_FILE_INPUT);
     printf("\tImproved by       = %.0f cycles", file_result);
     file_result = (file_result / average1) * 100;
     printf(", [ %.1f%% ]\n\n", file_result);
