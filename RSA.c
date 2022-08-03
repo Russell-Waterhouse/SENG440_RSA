@@ -47,8 +47,6 @@ uint64_t initial_encrypt(uint64_t input){
  */
 uint64_t initial_decrypt(uint64_t input){
     uint64_t pq = PQ;
-//    n = (p-1)*(q-1)
-    //calculates d such that e^d mod n == 1
     uint64_t d = 2753;
     uint64_t plain_text = initial_mod_exp(input, d, pq);
     return plain_text;
